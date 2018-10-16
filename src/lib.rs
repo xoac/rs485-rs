@@ -41,13 +41,25 @@
 extern crate bitflags;
 extern crate libc;
 
+#[cfg(not(target_env = "musl"))]
 use libc::c_ulong;
-use std::{mem, io};
+
+#[cfg(target_env = "musl")]
+use libc::c_int;
+
 use std::os::unix::io::{AsRawFd, RawFd};
+use std::{io, mem};
 
 // constants stolen from C libs
+#[cfg(not(target_env = "musl"))]
 const TIOCSRS485: c_ulong = 0x542f;
+#[cfg(not(target_env = "musl"))]
 const TIOCGRS485: c_ulong = 0x542e;
+
+#[cfg(target_env = "musl")]
+const TIOCSRS485: c_int = 0x542f;
+#[cfg(target_env = "musl")]
+const TIOCGRS485: c_int = 0x542e;
 
 // bitflags used by rs485 functionality
 bitflags! {
@@ -96,7 +108,6 @@ impl SerialRs485 {
         }
 
         Ok(conf)
-
     }
 
     /// Enable RS485 support
@@ -192,7 +203,6 @@ impl SerialRs485 {
         Ok(())
     }
 }
-
 
 /// Rs485 controls
 ///
